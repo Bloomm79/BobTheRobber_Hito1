@@ -15,10 +15,6 @@ public class GatoCamina : MonoBehaviour
     [Header("Escaleras (W / S)")]
     [SerializeField] private float velocidadEscalar = 3.5f;
 
-    [Header("Inventario")]
-    [SerializeField] private bool tieneLlave = false;
-    [SerializeField] private AudioClip sonidoLlave; // Audio asignable desde el Inspector
-
     [Header("Orientación")]
     [SerializeField] private bool spriteOriginalMiraDerecha = true;
 
@@ -26,6 +22,7 @@ public class GatoCamina : MonoBehaviour
     private SpriteRenderer sr;
     private Animator anim;
     private Collider2D col;
+    private AudioGato audioGato;
 
     private float entradaHorizontal;
     private float entradaVertical;
@@ -39,15 +36,14 @@ public class GatoCamina : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         col = GetComponent<Collider2D>();
+        audioGato = GetComponent<AudioGato>();
         gravedadInicial = rb.gravityScale;
     }
 
     void Update()
     {
-        // Controles A (-1) y D (+1)
+        // Controles de entrada
         entradaHorizontal = Input.GetAxisRaw("Horizontal");
-
-        // Controles S (-1) y W (+1)
         entradaVertical = Input.GetAxisRaw("Vertical");
 
         // Detección de suelo
@@ -64,16 +60,37 @@ public class GatoCamina : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && estaEnSuelo && !estaEnEscalera)
         {
             rb.velocity = new Vector2(rb.velocity.x, fuerzaSalto);
+
+            if (audioGato != null)
+            {
+                audioGato.ReproducirSalto();
+            }
         }
 
         // Control de animación
+        bool seMueveHorizontal = Mathf.Abs(entradaHorizontal) > 0.01f;
         if (anim != null)
         {
-            bool seMueve = Mathf.Abs(entradaHorizontal) > 0.01f;
-            anim.SetBool("estaCaminando", seMueve);
+            anim.SetBool("estaCaminando", seMueveHorizontal);
         }
 
-        // Giro visual
+        // Control de audio de pasos
+        if (audioGato != null)
+        {
+            bool seMueveVertical = Mathf.Abs(entradaVertical) > 0.01f;
+            bool estaMoviendose = (seMueveHorizontal && estaEnSuelo) || (estaEnEscalera && (seMueveHorizontal || seMueveVertical));
+
+            if (estaMoviendose)
+            {
+                audioGato.ReproducirPasos();
+            }
+            else
+            {
+                audioGato.DetenerPasos();
+            }
+        }
+
+        // Giro del sprite
         if (entradaHorizontal > 0.01f)
         {
             sr.flipX = !spriteOriginalMiraDerecha;
@@ -100,24 +117,9 @@ public class GatoCamina : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        // Detectar escaleras
         if (collision.CompareTag("Escalera"))
         {
             estaEnEscalera = true;
-        }
-
-        // Detectar y recoger la Llave
-        if (collision.CompareTag("Llave"))
-        {
-            tieneLlave = true;
-
-            // Reproduce el sonido si está asignado
-            if (sonidoLlave != null && Camera.main != null)
-            {
-                AudioSource.PlayClipAtPoint(sonidoLlave, Camera.main.transform.position);
-            }
-
-            Destroy(collision.gameObject); // Destruye el objeto de la llave
         }
     }
 
@@ -129,19 +131,6 @@ public class GatoCamina : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        // Daño de los hongos
-        if (collision.gameObject.CompareTag("Enemigo"))
-        {
-            VidaGato vida = GetComponent<VidaGato>();
-            if (vida != null)
-            {
-                vida.RecibirDanio(1);
-            }
-        }
-    }
-
     void OnDrawGizmosSelected()
     {
         if (detectorSuelo != null)
@@ -150,7 +139,4 @@ public class GatoCamina : MonoBehaviour
             Gizmos.DrawWireSphere(detectorSuelo.position, radioDeteccion);
         }
     }
-
-    // Propiedad pública por si una puerta necesita consultar si ya tiene la llave
-    public bool TieneLlave => tieneLlave;
-}   
+}

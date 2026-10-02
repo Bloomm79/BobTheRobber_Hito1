@@ -14,6 +14,7 @@ public class EnemigoPatrulla : MonoBehaviour
 
     private Rigidbody2D rb;
     private SpriteRenderer sr;
+    private AudioEnemigo audioEnemigo;
     private float centroX;
     private bool haciaDerecha = true;
 
@@ -21,7 +22,17 @@ public class EnemigoPatrulla : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
+        audioEnemigo = GetComponent<AudioEnemigo>();
         centroX = transform.position.x;
+    }
+
+    void Update()
+    {
+        // Reproduce el sonido de pasos si se está moviendo
+        if (audioEnemigo != null && Mathf.Abs(rb.velocity.x) > 0.05f)
+        {
+            audioEnemigo.ReproducirPasos();
+        }
     }
 
     void FixedUpdate()
@@ -37,6 +48,7 @@ public class EnemigoPatrulla : MonoBehaviour
             if (transform.position.x >= limiteDerecho)
             {
                 haciaDerecha = false;
+                if (audioEnemigo != null) audioEnemigo.ReproducirGiro();
             }
         }
         else
@@ -47,6 +59,7 @@ public class EnemigoPatrulla : MonoBehaviour
             if (transform.position.x <= limiteIzquierdo)
             {
                 haciaDerecha = true;
+                if (audioEnemigo != null) audioEnemigo.ReproducirGiro();
             }
         }
     }
