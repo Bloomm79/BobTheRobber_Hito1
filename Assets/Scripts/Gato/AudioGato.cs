@@ -13,6 +13,9 @@ public class AudioGato : MonoBehaviour
     [Tooltip("Sonido al golpear / hacer daño / arañar")]
     [SerializeField] private AudioClip clipHacerDano;
 
+    [Tooltip("Sonido cuando cae de una zona alta")]
+    [SerializeField] private AudioClip clipCaida;
+
     [Header("Volumen General")]
     [Range(0f, 1f)]
     [SerializeField] private float volumen = 0.8f;
@@ -23,11 +26,10 @@ public class AudioGato : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         audioSource.playOnAwake = false;
-        audioSource.loop = true; // Permite que camine de forma continua
+        audioSource.loop = false;
         audioSource.volume = volumen;
     }
 
-    // Comienza a reproducir el audio de caminar si no estaba sonando ya
     public void ReproducirPasos()
     {
         if (clipPasos == null) return;
@@ -40,7 +42,6 @@ public class AudioGato : MonoBehaviour
         }
     }
 
-    // Detiene el sonido de pasos al instante en que el gato frena
     public void DetenerPasos()
     {
         if (audioSource.isPlaying && audioSource.clip == clipPasos)
@@ -49,7 +50,6 @@ public class AudioGato : MonoBehaviour
         }
     }
 
-    // Salto usa PlayOneShot para no cortar abruptamente si venía de correr
     public void ReproducirSalto()
     {
         DetenerPasos();
@@ -65,6 +65,21 @@ public class AudioGato : MonoBehaviour
         if (clipHacerDano != null)
         {
             audioSource.PlayOneShot(clipHacerDano, volumen);
+        }
+    }
+
+    public void ReproducirCaida()
+    {
+        if (clipCaida != null)
+        {
+            if (Camera.main != null)
+            {
+                AudioSource.PlayClipAtPoint(clipCaida, Camera.main.transform.position, volumen);
+            }
+            else
+            {
+                audioSource.PlayOneShot(clipCaida, volumen);
+            }
         }
     }
 }

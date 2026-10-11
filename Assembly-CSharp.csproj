@@ -66,12 +66,16 @@
     <Compile Include="Assets\Scripts\Enemigo\audioenemigo.cs" />
     <Compile Include="Assets\Scripts\interfas\pausarjuego.cs" />
     <Compile Include="Assets\Scripts\Gato\VidaGato.cs" />
+    <Compile Include="Assets\Scripts\Enemigo\TrampaPinchos.cs" />
     <Compile Include="Assets\Scripts\Gato\AudioGato.cs" />
     <Compile Include="Assets\Scripts\Enemigo\EnemigoPatrulla.cs" />
     <Compile Include="Assets\Scripts\interfas\MenuController.cs" />
     <Compile Include="Assets\Scripts\Gato\GatoInventario.cs" />
+    <Compile Include="Assets\Scripts\Nivel\PasarNivel.cs" />
     <Compile Include="Assets\Scripts\interfas\CamaraSigue.cs" />
     <Compile Include="Assets\Scripts\Gato\GatoCamina.cs" />
+    <Compile Include="Assets\Scripts\Gato\DanioPorCaida.cs" />
+    <Compile Include="Assets\Scripts\Fin\GameManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

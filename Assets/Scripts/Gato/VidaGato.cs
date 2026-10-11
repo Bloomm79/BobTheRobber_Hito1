@@ -6,7 +6,7 @@ public class VidaGato : MonoBehaviour
 {
     [Header("Configuración de Vidas")]
     [SerializeField] private int vidas = 3;
-    [SerializeField] private GameObject[] corazones; // Acepta tus Corazon_1, Corazon_2, Corazon_3
+    [SerializeField] private GameObject[] corazones;
 
     [Header("Efecto Invulnerabilidad")]
     [SerializeField] private float tiempoInvulnerabilidad = 1.2f;
@@ -25,7 +25,6 @@ public class VidaGato : MonoBehaviour
         ActualizarCorazones();
     }
 
-    // Detección por colisión física
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Enemigo"))
@@ -34,7 +33,6 @@ public class VidaGato : MonoBehaviour
         }
     }
 
-    // Detección por si el hongo tiene 'Is Trigger' activado
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Enemigo"))
@@ -52,7 +50,16 @@ public class VidaGato : MonoBehaviour
 
         if (vidas <= 0)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            // Si existe GameManager, activa el panel de Game Over
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.ActivarGameOver();
+            }
+            else
+            {
+                // Respaldo por si juegas en una escena sin GameManager
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
         }
         else
         {
@@ -68,7 +75,6 @@ public class VidaGato : MonoBehaviour
         {
             if (corazones[i] != null)
             {
-                // Si el índice es menor a las vidas restantes se ve; si no, desaparece
                 corazones[i].SetActive(i < vidas);
             }
         }
@@ -81,7 +87,7 @@ public class VidaGato : MonoBehaviour
         float tiempoPasado = 0f;
         while (tiempoPasado < tiempoInvulnerabilidad)
         {
-            sr.color = new Color(1f, 1f, 1f, 0.2f); // Se vuelve transparente
+            sr.color = new Color(1f, 1f, 1f, 0.2f);
             yield return new WaitForSeconds(velocidadParpadeo);
             sr.color = Color.white;
             yield return new WaitForSeconds(velocidadParpadeo);
